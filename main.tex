@@ -1,0 +1,1222 @@
+\documentclass[12pt,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{geometry}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{hyperref}
+\usepackage{xcolor}
+\usepackage{listings}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+\usepackage{tocloft}
+
+\geometry{margin=1in}
+
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    citecolor=green,
+    pdftitle={ns-3 Setup and Basic Simulation Guide},
+    pdfauthor={Network Simulation Laboratory},
+}
+
+\lstset{
+    basicstyle=\ttfamily\small,
+    keywordstyle=\color{blue}\bfseries,
+    commentstyle=\color{green!60!black}\itshape,
+    stringstyle=\color{red},
+    showstringspaces=false,
+    breaklines=true,
+    frame=single,
+    numbers=left,
+    numberstyle=\tiny\color{gray},
+    tabsize=4,
+    captionpos=b,
+    language=C++,
+    morekeywords={Ptr, NodeContainer, NetDeviceContainer, Ipv4InterfaceContainer, 
+                  MobilityHelper, YansWifiChannelHelper, YansWifiPhyHelper, 
+                  WifiHelper, WifiMacHelper, InternetStackHelper, 
+                  Ipv4AddressHelper, OnOffHelper, PacketSinkHelper, 
+                  ApplicationContainer, AodvHelper, Simulator}
+}
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\leftmark}
+\fancyhead[R]{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+
+\titleformat{\section}
+  {\normalfont\Large\bfseries}{\thesection}{1em}{}
+\titleformat{\subsection}
+  {\normalfont\large\bfseries}{\thesubsection}{1em}{}
+
+\title{
+    \LARGE\textbf{ns-3 Network Simulator} \\
+    \vspace{0.5cm}
+    \Large Complete Setup and Basic Simulation Guide \\
+    \vspace{0.3cm}
+    \large A Comprehensive Introduction to MANET Simulation
+}
+
+\author{
+    Network Simulation Laboratory \\
+    Department of Computer Science and Engineering
+}
+
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\thispagestyle{empty}
+
+\newpage
+
+\tableofcontents
+
+\newpage
+
+\section{Introduction}
+
+\subsection{What is ns-3?}
+
+ns-3 (Network Simulator 3) is a discrete-event network simulator designed primarily for research and educational purposes. It is a free, open-source software project written in C++ with optional Python bindings. ns-3 is not an extension of the older ns-2 simulator but rather a completely new implementation built from the ground up to address the architectural limitations of its predecessor.
+
+The simulator provides a robust framework for modeling the behavior of computer networks, including wired and wireless networks, Internet protocols, and various network topologies. ns-3 enables researchers and students to simulate complex network scenarios without requiring physical hardware, thereby reducing costs and enabling reproducible experimentation.
+
+\subsection{Why Use ns-3?}
+
+There are several compelling reasons to use ns-3 for network simulation:
+
+\begin{itemize}
+    \item \textbf{Cost-Effective Research:} Setting up physical network testbeds with multiple nodes, routers, and wireless access points is expensive. ns-3 allows researchers to simulate large-scale networks on a single computer.
+    
+    \item \textbf{Reproducibility:} Simulations can be precisely controlled and repeated, ensuring consistent results across experiments. This is crucial for scientific research where reproducibility is a key requirement.
+    
+    \item \textbf{Flexibility:} ns-3 supports a wide range of network protocols and technologies, including TCP/IP, UDP, WiFi, LTE, and various routing protocols such as AODV, DSDV, and OLSR.
+    
+    \item \textbf{Scalability:} Users can simulate networks ranging from a few nodes to thousands of nodes, testing scenarios that would be impractical to implement physically.
+    
+    \item \textbf{Active Community:} ns-3 has an active development community, extensive documentation, and numerous tutorials available online.
+    
+    \item \textbf{Integration with Real Systems:} Advanced features allow ns-3 to interact with real network stacks and hardware, enabling hybrid simulation-emulation scenarios.
+\end{itemize}
+
+\subsection{Common Use Cases}
+
+ns-3 is widely used in both academic and industrial research settings. Some common applications include:
+
+\begin{itemize}
+    \item \textbf{Mobile Ad-hoc Networks (MANETs):} Studying routing protocols like AODV, DSR, and OLSR in dynamic, infrastructure-less networks where nodes communicate directly with each other.
+    
+    \item \textbf{Wireless Sensor Networks (WSNs):} Evaluating energy-efficient protocols and data aggregation techniques for resource-constrained sensor deployments.
+    
+    \item \textbf{Vehicular Ad-hoc Networks (VANETs):} Simulating vehicle-to-vehicle (V2V) and vehicle-to-infrastructure (V2I) communication for intelligent transportation systems.
+    
+    \item \textbf{Internet of Things (IoT):} Testing low-power communication protocols such as LoRaWAN, Zigbee, and 6LoWPAN.
+    
+    \item \textbf{Quality of Service (QoS) Analysis:} Evaluating network performance metrics such as throughput, latency, packet delivery ratio, and jitter under various traffic conditions.
+    
+    \item \textbf{Protocol Development:} Designing and testing new routing, transport, or application-layer protocols before implementation in real systems.
+    
+    \item \textbf{Network Security:} Simulating attacks such as denial-of-service (DoS), eavesdropping, and evaluating countermeasures.
+\end{itemize}
+
+This guide focuses primarily on MANET simulation using ns-3, providing students with hands-on experience in setting up, configuring, and running basic wireless ad-hoc network experiments.
+
+\newpage
+
+\section{System Requirements}
+
+Before proceeding with the installation of ns-3, it is essential to ensure that your system meets the minimum hardware and software requirements. This section outlines the necessary specifications and provides recommendations for optimal performance.
+
+\subsection{Operating System Requirements}
+
+ns-3 is primarily developed and tested on Unix-like operating systems. The officially supported platforms include:
+
+\begin{itemize}
+    \item \textbf{Ubuntu Linux:} Version 20.04 LTS, 22.04 LTS, or later (recommended)
+    \item \textbf{Debian:} Version 10 or later
+    \item \textbf{Fedora:} Recent versions
+    \item \textbf{macOS:} Version 10.14 or later
+    \item \textbf{Windows:} Via Windows Subsystem for Linux (WSL 2) running Ubuntu
+\end{itemize}
+
+For beginners, Ubuntu 22.04 LTS is highly recommended due to its stability, extensive community support, and availability of pre-packaged dependencies. This guide primarily focuses on Ubuntu-based installations, including native Ubuntu, WSL, and cloud-based environments.
+
+\subsection{Hardware Recommendations}
+
+While ns-3 can run on modest hardware configurations, the following specifications are recommended for comfortable development and simulation:
+
+\begin{table}[h]
+\centering
+\begin{tabular}{@{}ll@{}}
+\toprule
+\textbf{Component} & \textbf{Recommended Specification} \\ \midrule
+Processor & Multi-core CPU (Intel Core i5/i7 or AMD equivalent) \\
+RAM & 4 GB minimum, 8 GB or more recommended \\
+Storage & 10 GB free disk space for ns-3 and dependencies \\
+Network & Internet connection for downloading packages \\ \bottomrule
+\end{tabular}
+\caption{Recommended hardware specifications for ns-3}
+\end{table}
+
+For large-scale simulations involving thousands of nodes or long simulation durations, additional RAM and processing power will significantly improve performance. Simulations can be CPU-intensive, so a multi-core processor enables parallel builds and faster compilation times.
+
+\subsection{Cloud-Based and Virtual Environments}
+
+Many students may not have access to physical Linux machines or may prefer cloud-based development environments. ns-3 works well in the following setups:
+
+\begin{itemize}
+    \item \textbf{Windows Subsystem for Linux (WSL 2):} Allows Windows users to run a complete Linux environment without dual-booting. WSL 2 provides better performance than WSL 1 and supports graphical applications with appropriate configuration.
+    
+    \item \textbf{GitHub Codespaces:} Cloud-based development environment that provides a pre-configured Ubuntu container accessible via web browser. Ideal for students without local computational resources. Note that GUI applications are not supported, so analysis must be command-line based.
+    
+    \item \textbf{Virtual Machines:} VirtualBox or VMware can be used to run Ubuntu as a guest OS on Windows or macOS. Allocate at least 2 CPU cores and 4 GB RAM to the virtual machine.
+    
+    \item \textbf{Cloud Computing Platforms:} AWS, Google Cloud, or Azure instances can be used for large-scale simulations. Students should be aware of potential costs associated with extended usage.
+\end{itemize}
+
+\subsection{Software Dependencies}
+
+ns-3 requires several software packages and libraries to compile and run successfully. These include:
+
+\begin{itemize}
+    \item \textbf{C++ Compiler:} GCC version 7 or later, or Clang version 6 or later
+    \item \textbf{Python:} Version 3.6 or later (for build system and optional bindings)
+    \item \textbf{CMake:} Version 3.10 or later (build system)
+    \item \textbf{Git:} For version control and downloading ns-3 from repositories
+    \item \textbf{Development Libraries:} libxml2, libsqlite3, and others depending on optional features
+\end{itemize}
+
+Detailed installation instructions for these dependencies are provided in the following section.
+
+\newpage
+
+\section{Installation and Environment Setup}
+
+This section provides comprehensive step-by-step instructions for installing ns-3 on various platforms. Each subsection targets a specific environment, ensuring that students can successfully set up ns-3 regardless of their operating system or infrastructure.
+
+\subsection{Installation on Native Ubuntu Linux}
+
+For users running Ubuntu natively on their machines, the installation process is straightforward. Open a terminal and follow these steps:
+
+\subsubsection{Step 1: Update System Packages}
+
+Before installing any new software, ensure that your system's package index is up to date:
+
+\begin{lstlisting}[language=bash]
+sudo apt update
+sudo apt upgrade -y
+\end{lstlisting}
+
+This ensures that you have the latest security patches and package information.
+
+\subsubsection{Step 2: Install Essential Build Tools}
+
+ns-3 requires a C++ compiler, build tools, and version control software:
+
+\begin{lstlisting}[language=bash]
+sudo apt install -y build-essential g++ cmake git
+\end{lstlisting}
+
+\begin{itemize}
+    \item \texttt{build-essential}: Meta-package that includes GCC, G++, make, and other essential compilation tools
+    \item \texttt{g++}: GNU C++ compiler required for compiling ns-3 source code
+    \item \texttt{cmake}: Cross-platform build system used by ns-3
+    \item \texttt{git}: Version control system for cloning the ns-3 repository
+\end{itemize}
+
+\subsubsection{Step 3: Install Python and Required Libraries}
+
+ns-3's build system relies on Python. Install Python 3 and related development packages:
+
+\begin{lstlisting}[language=bash]
+sudo apt install -y python3 python3-dev python3-pip
+\end{lstlisting}
+
+Some optional ns-3 features require additional Python packages, which can be installed later if needed.
+
+\subsubsection{Step 4: Install Additional Dependencies}
+
+Several libraries enhance ns-3 functionality and enable specific features:
+
+\begin{lstlisting}[language=bash]
+sudo apt install -y libxml2 libxml2-dev libsqlite3-dev
+sudo apt install -y libboost-all-dev libeigen3-dev
+sudo apt install -y gir1.2-goocanvas-2.0 python3-gi 
+sudo apt install -y python3-gi-cairo python3-pygraphviz
+\end{lstlisting}
+
+\textbf{Purpose of each dependency:}
+\begin{itemize}
+    \item \texttt{libxml2}: XML parsing library used for configuration files
+    \item \texttt{libsqlite3}: Lightweight database library for storing simulation results
+    \item \texttt{libboost}: C++ libraries that extend standard library functionality
+    \item \texttt{libeigen3}: Template library for linear algebra operations
+    \item \texttt{gir1.2-goocanvas-2.0}: Canvas widget for GTK+ (used in visualizations)
+    \item \texttt{python3-gi}: Python bindings for GObject introspection
+    \item \texttt{python3-pygraphviz}: Graph visualization library
+\end{itemize}
+
+Note that some of these packages are optional and primarily support graphical visualizations, which may not be available in headless cloud environments.
+
+\subsubsection{Step 5: Download ns-3}
+
+Clone the latest stable version of ns-3 from the official GitLab repository:
+
+\begin{lstlisting}[language=bash]
+cd ~
+git clone https://gitlab.com/nsnam/ns-3-dev.git ns-3
+cd ns-3
+\end{lstlisting}
+
+Alternatively, download a specific release version:
+
+\begin{lstlisting}[language=bash]
+git clone https://gitlab.com/nsnam/ns-3-dev.git -b ns-3.40 ns-3
+\end{lstlisting}
+
+Replace \texttt{ns-3.40} with the desired version number. Using stable releases is recommended for beginners.
+
+\subsection{Installation on Windows via WSL 2}
+
+Windows Subsystem for Linux (WSL 2) allows Windows users to run a Linux environment directly on Windows without the overhead of a traditional virtual machine.
+
+\subsubsection{Step 1: Enable WSL 2}
+
+Open PowerShell as Administrator and run:
+
+\begin{lstlisting}[language=bash]
+wsl --install
+\end{lstlisting}
+
+This command installs WSL 2 and the default Ubuntu distribution. Restart your computer when prompted.
+
+\subsubsection{Step 2: Launch Ubuntu}
+
+After restarting, launch Ubuntu from the Start menu. You will be prompted to create a UNIX username and password.
+
+\subsubsection{Step 3: Follow Ubuntu Installation Steps}
+
+Once inside the Ubuntu terminal, follow the same installation steps outlined in Section 3.1 for native Ubuntu. All commands are identical.
+
+\subsubsection{Step 4: Access Windows Files from WSL}
+
+Windows drives are mounted under \texttt{/mnt/}. For example, your C: drive is accessible at \texttt{/mnt/c/}. However, it is recommended to keep ns-3 files within the WSL file system for better performance.
+
+\subsection{Installation on GitHub Codespaces}
+
+GitHub Codespaces provides cloud-based development environments with Ubuntu containers. This is ideal for students without local resources.
+
+\subsubsection{Step 1: Create a Codespace}
+
+Navigate to a GitHub repository (or create a new one) and click on \textbf{Code > Codespaces > Create codespace on main}. A new Ubuntu-based container will be provisioned in the cloud.
+
+\subsubsection{Step 2: Open Terminal}
+
+Once the codespace loads, open the integrated terminal. You now have access to a full Ubuntu environment.
+
+\subsubsection{Step 3: Install Dependencies}
+
+Run the same dependency installation commands as in Section 3.1. Since you don't have sudo password-less access by default, you may need to enter your codespace password when prompted (or it may already be configured).
+
+\begin{lstlisting}[language=bash]
+sudo apt update
+sudo apt install -y build-essential g++ cmake git python3 python3-dev
+sudo apt install -y libxml2 libxml2-dev libsqlite3-dev
+\end{lstlisting}
+
+\subsubsection{Step 4: Clone ns-3}
+
+Download ns-3 as described in Section 3.1, Step 5.
+
+\subsubsection{Step 5: Note on GUI Applications}
+
+Codespaces run in a headless environment, meaning graphical applications will not display. All analysis must be performed using command-line tools, log files, and PCAP traces that can be downloaded for local analysis.
+
+\subsection{Common Installation Errors and Fixes}
+
+During installation, students may encounter several common issues. This subsection provides solutions to frequent problems.
+
+\begin{table}[h]
+\centering
+\small
+\begin{tabular}{@{}p{0.3\textwidth}p{0.65\textwidth}@{}}
+\toprule
+\textbf{Error} & \textbf{Solution} \\ \midrule
+\texttt{E: Unable to locate package} & Run \texttt{sudo apt update} to refresh package lists \\
+\texttt{Permission denied} & Ensure you have sudo privileges or are in the correct user group \\
+\texttt{Git clone fails} & Check internet connection; verify repository URL; try using HTTPS instead of SSH \\
+\texttt{CMake version too old} & Install a newer version manually or use a newer Ubuntu release \\
+\texttt{Python not found} & Explicitly install \texttt{python3} and create a symbolic link if necessary \\
+\texttt{Missing library errors during build} & Install missing development packages using \texttt{apt search <library-name>} \\ \bottomrule
+\end{tabular}
+\caption{Common installation errors and their solutions}
+\end{table}
+
+\newpage
+
+\section{ns-3 Directory Structure}
+
+Understanding the directory structure of ns-3 is crucial for navigating the codebase, adding custom simulations, and utilizing built-in examples. This section provides an overview of the most important directories and their purposes.
+
+After cloning or extracting ns-3, the root directory contains numerous folders and files. The key directories are:
+
+\subsection{Important Directories}
+
+\begin{itemize}
+    \item \textbf{\texttt{scratch/}}: This is the primary working directory for users developing custom simulations. Any C++ source file placed in this directory can be compiled and run using the ns-3 build system without modifying configuration files. This is where beginners should place their MANET simulation scripts.
+    
+    \item \textbf{\texttt{examples/}}: Contains official example programs demonstrating various ns-3 features. These are organized by module (e.g., \texttt{wireless/}, \texttt{routing/}, \texttt{tutorial/}). Examining these examples is an excellent way to learn ns-3 APIs and best practices.
+    
+    \item \textbf{\texttt{src/}}: The source code for all ns-3 modules resides here. Each subdirectory represents a module (e.g., \texttt{wifi/}, \texttt{internet/}, \texttt{mobility/}, \texttt{aodv/}). Users typically do not modify these files unless contributing to ns-3 development or implementing custom protocol modules.
+    
+    \item \textbf{\texttt{build/}}: Generated during the build process, this directory contains compiled object files, libraries, and executables. Users generally do not interact with this directory directly.
+    
+    \item \textbf{\texttt{doc/}}: Contains ns-3 documentation, including the tutorial, manual, and API reference in various formats (HTML, PDF). This is a valuable resource for understanding advanced features.
+    
+    \item \textbf{\texttt{contrib/}}: Optional contributed modules not part of the core ns-3 distribution. Users can add third-party modules here.
+    
+    \item \textbf{\texttt{utils/}}: Utility scripts for testing, benchmarking, and code formatting.
+    
+    \item \textbf{\texttt{testpy/}}: Python scripts used by the ns-3 testing framework.
+\end{itemize}
+
+\subsection{The Build System: \texttt{ns3}}
+
+ns-3 uses a Python-based wrapper script called \texttt{ns3} (or \texttt{./ns3} when executed from the ns-3 root directory) to manage building, configuring, and running simulations. This script simplifies interaction with the underlying CMake build system.
+
+Common \texttt{ns3} commands include:
+
+\begin{itemize}
+    \item \texttt{./ns3 configure}: Configure the build system with specified options
+    \item \texttt{./ns3 build}: Compile ns-3 and all simulations in the \texttt{scratch/} directory
+    \item \texttt{./ns3 run <program>}: Compile (if needed) and execute a simulation program
+    \item \texttt{./ns3 clean}: Remove build artifacts
+    \item \texttt{./ns3 --help}: Display available commands and options
+\end{itemize}
+
+\subsection{Configuration Files}
+
+Configuration files allow users to customize build options:
+
+\begin{itemize}
+    \item \textbf{\texttt{CMakeLists.txt}}: Primary CMake configuration file defining build targets and dependencies
+    \item \textbf{\texttt{ns3rc}}: User-specific configuration file for setting default build options
+\end{itemize}
+
+For most beginner use cases, modifying these files is unnecessary.
+
+\subsection{Directory Structure Summary}
+
+\begin{table}[h]
+\centering
+\begin{tabular}{@{}ll@{}}
+\toprule
+\textbf{Directory} & \textbf{Purpose} \\ \midrule
+\texttt{scratch/} & User simulation scripts \\
+\texttt{examples/} & Official example programs \\
+\texttt{src/} & ns-3 core modules and protocol implementations \\
+\texttt{build/} & Compiled binaries and object files \\
+\texttt{doc/} & Documentation and manuals \\
+\texttt{contrib/} & Third-party contributed modules \\
+\texttt{utils/} & Utility and helper scripts \\ \bottomrule
+\end{tabular}
+\caption{Summary of important ns-3 directories}
+\end{table}
+
+\newpage
+
+\section{Build and Verification}
+
+After installing ns-3 and its dependencies, the next step is to configure, build, and verify the installation. This ensures that the simulator is correctly set up and ready for custom simulations.
+
+\subsection{Configuration}
+
+Navigate to the ns-3 root directory and configure the build:
+
+\begin{lstlisting}[language=bash]
+cd ~/ns-3
+./ns3 configure --enable-examples --enable-tests
+\end{lstlisting}
+
+\textbf{Configuration Options:}
+\begin{itemize}
+    \item \texttt{--enable-examples}: Compiles example programs, which are useful for learning
+    \item \texttt{--enable-tests}: Enables the test suite for verifying correctness
+    \item \texttt{--build-profile=optimized}: Builds optimized binaries for faster execution (default is debug mode)
+    \item \texttt{--disable-python}: Disables Python bindings if not needed
+\end{itemize}
+
+For beginners, the default configuration is sufficient. Advanced users may customize further based on specific requirements.
+
+The configuration step checks for dependencies and generates build files. Expected output includes messages confirming the availability of required libraries and compiler versions.
+
+\subsection{Building ns-3}
+
+Compile ns-3 using the build command:
+
+\begin{lstlisting}[language=bash]
+./ns3 build
+\end{lstlisting}
+
+This process may take several minutes depending on system performance. The build system compiles all ns-3 modules, examples, and tests. Progress is displayed in the terminal with messages indicating which modules are being compiled.
+
+\textbf{Common Build Issues:}
+\begin{itemize}
+    \item \textbf{Compilation errors due to missing headers:} Install missing development libraries
+    \item \textbf{Out of memory errors:} Reduce parallel build jobs using \texttt{./ns3 build -j2} (limits to 2 parallel jobs)
+    \item \textbf{Permission errors:} Ensure write permissions in the ns-3 directory
+\end{itemize}
+
+\subsection{Running Built-in Examples}
+
+Verify the installation by running a simple built-in example. The \texttt{hello-simulator} example is a minimal program that prints a message:
+
+\begin{lstlisting}[language=bash]
+./ns3 run hello-simulator
+\end{lstlisting}
+
+\textbf{Expected Output:}
+\begin{lstlisting}[language=bash]
+Hello Simulator
+\end{lstlisting}
+
+If this message appears, ns-3 is correctly installed and functional.
+
+Next, test a wireless example to ensure WiFi modules are working:
+
+\begin{lstlisting}[language=bash]
+./ns3 run wifi-simple-adhoc
+\end{lstlisting}
+
+This example simulates a basic ad-hoc WiFi network. If no errors occur and the program completes successfully, wireless components are operational.
+
+\subsection{Verifying Successful Installation}
+
+A successful installation should meet the following criteria:
+
+\begin{enumerate}
+    \item Configuration completes without fatal errors
+    \item Build process finishes without compilation failures
+    \item Built-in examples execute and produce expected output
+    \item No missing library warnings during execution
+\end{enumerate}
+
+To perform a comprehensive verification, run the ns-3 test suite:
+
+\begin{lstlisting}[language=bash]
+./test.py
+\end{lstlisting}
+
+This executes hundreds of unit tests covering various modules. While not all tests may pass on every system (due to platform-specific quirks), the majority should succeed. Review the test report for any critical failures.
+
+\subsection{Post-Build Configuration}
+
+After a successful build, consider setting up environment variables for convenience:
+
+\begin{lstlisting}[language=bash]
+echo 'export NS3_HOME=~/ns-3' >> ~/.bashrc
+echo 'export PATH=$NS3_HOME:$PATH' >> ~/.bashrc
+source ~/.bashrc
+\end{lstlisting}
+
+This allows running \texttt{ns3} commands from any directory (though simulations should still be placed in the \texttt{scratch/} directory).
+
+\newpage
+
+\section{Basic MANET Simulation}
+
+Mobile Ad-hoc Networks (MANETs) are self-configuring networks of mobile devices connected by wireless links. Unlike traditional networks with fixed infrastructure, MANETs operate without centralized access points or routers. Each node acts as both a host and a router, forwarding packets for other nodes.
+
+\subsection{Understanding MANET Concepts}
+
+\subsubsection{Key Characteristics}
+
+MANETs exhibit several unique characteristics:
+
+\begin{itemize}
+    \item \textbf{Dynamic Topology:} Node mobility causes frequent topology changes
+    \item \textbf{Decentralized Architecture:} No fixed infrastructure or central controller
+    \item \textbf{Limited Resources:} Nodes often have constraints in power, bandwidth, and processing
+    \item \textbf{Multi-hop Communication:} Nodes communicate through intermediate nodes when out of direct range
+    \item \textbf{Autonomous Operation:} Each node independently makes routing decisions
+\end{itemize}
+
+\subsubsection{Routing in MANETs}
+
+Routing protocols for MANETs differ fundamentally from traditional routing protocols due to network dynamics. They are categorized as:
+
+\begin{itemize}
+    \item \textbf{Proactive (Table-driven):} Routes are computed and maintained continuously (e.g., DSDV, OLSR)
+    \item \textbf{Reactive (On-demand):} Routes are discovered only when needed (e.g., AODV, DSR)
+    \item \textbf{Hybrid:} Combines proactive and reactive approaches (e.g., ZRP)
+\end{itemize}
+
+This guide demonstrates \textbf{AODV (Ad-hoc On-Demand Distance Vector)}, a popular reactive routing protocol that discovers routes only when a node needs to send data.
+
+\subsection{Components of the Simulation}
+
+Our basic MANET simulation includes the following components:
+
+\begin{enumerate}
+    \item \textbf{Nodes:} Representing mobile devices (e.g., smartphones, laptops)
+    \item \textbf{WiFi Ad-hoc Configuration:} Setting up wireless communication without access points
+    \item \textbf{Mobility Model:} Defining how nodes move in the simulation area
+    \item \textbf{Internet Stack:} Installing TCP/IP protocols on nodes
+    \item \textbf{Routing Protocol:} AODV for discovering and maintaining routes
+    \item \textbf{Applications:} UDP traffic generation to test connectivity
+    \item \textbf{Simulation Events:} Controlling start, stop, and data flow
+\end{enumerate}
+
+\subsection{Complete MANET Simulation Code}
+
+The following C++ program implements a basic MANET simulation with 10 nodes moving randomly. Nodes 0 and 9 communicate via UDP, with intermediate nodes forwarding packets using AODV routing.
+
+\textbf{File:} Save this code as \texttt{manet-basic.cc} in the \texttt{scratch/} directory.
+
+\begin{lstlisting}
+/* 
+ * Basic MANET Simulation with AODV Routing
+ * 
+ * This simulation creates a mobile ad-hoc network with 10 nodes
+ * moving randomly in a 1000x1000m area. Node 0 sends UDP traffic
+ * to Node 9, and AODV routing discovers the multi-hop path.
+ * 
+ * Outputs: PCAP trace files for packet analysis
+ */
+
+#include "ns3/core-module.h"
+#include "ns3/network-module.h"
+#include "ns3/mobility-module.h"
+#include "ns3/wifi-module.h"
+#include "ns3/internet-module.h"
+#include "ns3/aodv-module.h"
+#include "ns3/applications-module.h"
+
+using namespace ns3;
+
+NS_LOG_COMPONENT_DEFINE("BasicManetSimulation");
+
+int main(int argc, char *argv[])
+{
+    // ========== Simulation Parameters ==========
+    uint32_t numNodes = 10;              // Number of mobile nodes
+    double simTime = 100.0;              // Total simulation time in seconds
+    double txRange = 250.0;              // Transmission range in meters
+    std::string phyMode = "DsssRate1Mbps"; // Physical layer data rate
+    
+    // Allow command-line arguments to override defaults
+    CommandLine cmd;
+    cmd.AddValue("numNodes", "Number of nodes", numNodes);
+    cmd.AddValue("simTime", "Simulation time", simTime);
+    cmd.Parse(argc, argv);
+    
+    // Enable logging for debugging (optional, can be commented out)
+    // LogComponentEnable("BasicManetSimulation", LOG_LEVEL_INFO);
+    // LogComponentEnable("AodvRoutingProtocol", LOG_LEVEL_INFO);
+    
+    // ========== Create Nodes ==========
+    // NodeContainer is a collection of network nodes
+    NodeContainer adhocNodes;
+    adhocNodes.Create(numNodes);
+    NS_LOG_INFO("Created " << numNodes << " mobile nodes");
+    
+    // ========== Configure WiFi Physical Layer ==========
+    // YansWifiPhyHelper manages the physical layer (radio characteristics)
+    // YansWifiChannelHelper manages the wireless channel (propagation model)
+    
+    WifiHelper wifi;
+    wifi.SetStandard(WIFI_STANDARD_80211b); // Use 802.11b standard
+    
+    YansWifiPhyHelper wifiPhy;
+    YansWifiChannelHelper wifiChannel;
+    
+    // Set propagation delay model (constant speed of light)
+    wifiChannel.SetPropagationDelay("ns3::ConstantSpeedPropagationDelayModel");
+    
+    // Set propagation loss model (Friis for open space)
+    // Range is determined by transmission power and receiver sensitivity
+    wifiChannel.AddPropagationLoss("ns3::FriisPropagationLossModel");
+    
+    wifiPhy.SetChannel(wifiChannel.Create());
+    
+    // ========== Configure WiFi MAC Layer ==========
+    // WifiMacHelper configures the MAC layer for ad-hoc mode
+    WifiMacHelper wifiMac;
+    wifiMac.SetType("ns3::AdhocWifiMac"); // Ad-hoc mode (no AP required)
+    
+    // Set remote station manager (rate control algorithm)
+    wifi.SetRemoteStationManager("ns3::ConstantRateWifiManager",
+                                   "DataMode", StringValue(phyMode),
+                                   "ControlMode", StringValue(phyMode));
+    
+    // Install WiFi devices on all nodes
+    NetDeviceContainer adhocDevices = wifi.Install(wifiPhy, wifiMac, adhocNodes);
+    NS_LOG_INFO("WiFi devices installed on all nodes");
+    
+    // ========== Configure Mobility Model ==========
+    // MobilityHelper assigns mobility patterns to nodes
+    MobilityHelper mobility;
+    
+    // Set initial positions: random within a 1000x1000 meter area
+    mobility.SetPositionAllocator("ns3::RandomRectanglePositionAllocator",
+                                   "X", StringValue("ns3::UniformRandomVariable[Min=0.0|Max=1000.0]"),
+                                   "Y", StringValue("ns3::UniformRandomVariable[Min=0.0|Max=1000.0]"));
+    
+    // Set mobility model: Random Waypoint
+    // Nodes move to random positions at random speeds with pause times
+    mobility.SetMobilityModel("ns3::RandomWaypointMobilityModel",
+                               "Speed", StringValue("ns3::UniformRandomVariable[Min=5.0|Max=15.0]"), // 5-15 m/s
+                               "Pause", StringValue("ns3::ConstantRandomVariable[Constant=2.0]"),    // 2 second pause
+                               "PositionAllocator", PointerValue(CreateObject<RandomRectanglePositionAllocator>()));
+    
+    mobility.Install(adhocNodes);
+    NS_LOG_INFO("Random Waypoint mobility model installed");
+    
+    // ========== Install Internet Stack ==========
+    // InternetStackHelper installs TCP/IP protocols on nodes
+    InternetStackHelper internet;
+    
+    // Use AODV routing protocol
+    AodvHelper aodv;
+    internet.SetRoutingHelper(aodv); // Install AODV as the routing protocol
+    internet.Install(adhocNodes);
+    NS_LOG_INFO("Internet stack with AODV routing installed");
+    
+    // ========== Assign IP Addresses ==========
+    // Ipv4AddressHelper assigns IPv4 addresses to network devices
+    Ipv4AddressHelper address;
+    address.SetBase("10.1.1.0", "255.255.255.0"); // Network: 10.1.1.0/24
+    Ipv4InterfaceContainer adhocInterfaces = address.Assign(adhocDevices);
+    NS_LOG_INFO("IP addresses assigned to all nodes");
+    
+    // ========== Set Up Applications ==========
+    // Application 1: UDP Server on Node 9 (receives packets)
+    uint16_t port = 9; // UDP port number
+    
+    // PacketSink receives and counts packets
+    PacketSinkHelper sinkHelper("ns3::UdpSocketFactory", 
+                                 InetSocketAddress(Ipv4Address::GetAny(), port));
+    ApplicationContainer sinkApp = sinkHelper.Install(adhocNodes.Get(9));
+    sinkApp.Start(Seconds(0.0));   // Server starts at t=0
+    sinkApp.Stop(Seconds(simTime)); // Server stops at end of simulation
+    
+    // Application 2: UDP Client on Node 0 (sends packets)
+    OnOffHelper onOffHelper("ns3::UdpSocketFactory", 
+                             InetSocketAddress(adhocInterfaces.GetAddress(9), port));
+    
+    // Configure traffic pattern: constant bit rate
+    onOffHelper.SetConstantRate(DataRate("250Kbps")); // 250 kilobits per second
+    onOffHelper.SetAttribute("PacketSize", UintegerValue(512)); // 512-byte packets
+    
+    ApplicationContainer clientApp = onOffHelper.Install(adhocNodes.Get(0));
+    clientApp.Start(Seconds(10.0));  // Client starts at t=10 (allow time for routing)
+    clientApp.Stop(Seconds(simTime)); // Client stops at end of simulation
+    
+    NS_LOG_INFO("UDP client-server applications configured");
+    
+    // ========== Enable PCAP Tracing ==========
+    // PCAP files allow packet-level analysis using tools like Wireshark
+    // Generate PCAP trace for all WiFi devices
+    wifiPhy.EnablePcapAll("manet-basic");
+    NS_LOG_INFO("PCAP tracing enabled");
+    
+    // ========== Run Simulation ==========
+    NS_LOG_INFO("Starting simulation for " << simTime << " seconds...");
+    Simulator::Stop(Seconds(simTime));
+    Simulator::Run();
+    
+    // ========== Cleanup and Finish ==========
+    Simulator::Destroy();
+    NS_LOG_INFO("Simulation complete");
+    
+    return 0;
+}
+\end{lstlisting}
+
+\subsection{Code Explanation}
+
+The simulation code is structured into logical sections:
+
+\begin{enumerate}
+    \item \textbf{Parameter Definition:} Configurable parameters like number of nodes, simulation duration, and transmission range
+    
+    \item \textbf{Node Creation:} \texttt{NodeContainer} creates a collection of network nodes
+    
+    \item \textbf{WiFi Configuration:} Physical and MAC layers are configured for ad-hoc mode without access points
+    
+    \item \textbf{Mobility:} Nodes are assigned initial positions and movement patterns using Random Waypoint model
+    
+    \item \textbf{Internet Stack:} TCP/IP protocols and AODV routing are installed on all nodes
+    
+    \item \textbf{IP Addressing:} Each node receives a unique IP address in the 10.1.1.0/24 subnet
+    
+    \item \textbf{Applications:} UDP client on Node 0 sends traffic to UDP server on Node 9
+    
+    \item \textbf{Tracing:} PCAP files are generated for detailed packet analysis
+    
+    \item \textbf{Simulation Execution:} The discrete-event simulator runs for the specified duration
+\end{enumerate}
+
+\newpage
+
+\section{Running the Simulation}
+
+After creating the MANET simulation script, the next step is to compile and execute it. This section walks through the process and explains expected behaviors.
+
+\subsection{Compilation}
+
+Navigate to the ns-3 root directory and compile the simulation:
+
+\begin{lstlisting}[language=bash]
+cd ~/ns-3
+./ns3 run manet-basic
+\end{lstlisting}
+
+The build system automatically detects new files in the \texttt{scratch/} directory, compiles them, and executes the resulting binary.
+
+\textbf{Expected Console Output:}
+
+During execution, you should see log messages (if logging is enabled) indicating:
+\begin{itemize}
+    \item Node creation
+    \item WiFi device installation
+    \item Mobility configuration
+    \item Application start times
+    \item Simulation progress
+\end{itemize}
+
+The simulation runs for 100 seconds (simulated time), which typically completes in a few seconds of real time on modern hardware.
+
+\subsection{Command-Line Arguments}
+
+The simulation accepts optional command-line arguments to modify parameters without editing the code:
+
+\begin{lstlisting}[language=bash]
+./ns3 run "manet-basic --numNodes=15 --simTime=200"
+\end{lstlisting}
+
+This command runs the simulation with 15 nodes for 200 seconds.
+
+To see available arguments:
+
+\begin{lstlisting}[language=bash]
+./ns3 run "manet-basic --PrintHelp"
+\end{lstlisting}
+
+\subsection{Expected Behavior}
+
+The simulation demonstrates the following behavior:
+
+\begin{enumerate}
+    \item \textbf{Initialization (0-10s):} Nodes are positioned randomly and begin moving. The AODV protocol remains idle as no traffic is generated yet.
+    
+    \item \textbf{Route Discovery (10s):} Node 0 starts sending UDP traffic to Node 9. Since no route exists, AODV initiates route discovery by broadcasting Route Request (RREQ) messages.
+    
+    \item \textbf{Route Establishment:} Intermediate nodes forward RREQs. When Node 9 receives the RREQ, it sends a Route Reply (RREP) back to Node 0, establishing the path.
+    
+    \item \textbf{Data Transmission (10-100s):} UDP packets flow from Node 0 to Node 9 along the discovered route. As nodes move, routes may break, triggering new route discoveries.
+    
+    \item \textbf{Route Maintenance:} AODV monitors route status. If a link breaks (nodes move out of range), error messages (RERR) propagate, and new routes are discovered.
+\end{enumerate}
+
+\subsection{Common Runtime Issues}
+
+\begin{table}[h]
+\centering
+\small
+\begin{tabular}{@{}p{0.35\textwidth}p{0.6\textwidth}@{}}
+\toprule
+\textbf{Issue} & \textbf{Solution} \\ \midrule
+Compilation errors & Ensure code syntax is correct; check for missing semicolons or brackets \\
+No output files generated & Verify PCAP tracing is enabled; check file permissions in ns-3 directory \\
+Simulation runs but no packets received & Increase transmission range or reduce area size to ensure connectivity \\
+Segmentation fault & Check for null pointer access; ensure all objects are properly initialized \\
+Extremely slow execution & Reduce number of nodes or simulation time; use optimized build profile \\ \bottomrule
+\end{tabular}
+\caption{Common runtime issues and solutions}
+\end{table}
+
+\subsection{Debugging Tips}
+
+To debug simulations:
+
+\begin{itemize}
+    \item Enable logging for specific components by uncommenting \texttt{LogComponentEnable} lines
+    \item Use \texttt{NS\_LOG} environment variable:
+    \begin{lstlisting}[language=bash]
+NS_LOG="AodvRoutingProtocol=level_info" ./ns3 run manet-basic
+    \end{lstlisting}
+    \item Add custom print statements using \texttt{std::cout} or \texttt{NS\_LOG\_INFO}
+    \item Examine PCAP files to verify packet transmission
+\end{itemize}
+
+\newpage
+
+\section{Output and Analysis}
+
+After running the simulation, ns-3 generates several output files that allow detailed analysis of network behavior. This section explains how to interpret and analyze simulation results.
+
+\subsection{PCAP Files}
+
+PCAP (Packet Capture) files record all packets transmitted and received by network devices. These files are compatible with packet analysis tools like Wireshark, tcpdump, and tshark.
+
+\subsubsection{Locating PCAP Files}
+
+After running \texttt{manet-basic}, PCAP files are created in the ns-3 root directory with names following the pattern:
+
+\begin{lstlisting}
+manet-basic-X-Y.pcap
+\end{lstlisting}
+
+where:
+\begin{itemize}
+    \item \texttt{X} is the node ID (0 to numNodes-1)
+    \item \texttt{Y} is the device ID (typically 0 for the first WiFi interface)
+\end{itemize}
+
+Example files:
+\begin{lstlisting}
+manet-basic-0-0.pcap  # Node 0's WiFi device
+manet-basic-9-0.pcap  # Node 9's WiFi device
+\end{lstlisting}
+
+\subsubsection{Analyzing PCAP Files with Wireshark}
+
+For local installations with GUI support, open PCAP files using Wireshark:
+
+\begin{lstlisting}[language=bash]
+wireshark manet-basic-0-0.pcap
+\end{lstlisting}
+
+In Wireshark, you can:
+\begin{itemize}
+    \item Filter packets by protocol (e.g., \texttt{udp}, \texttt{aodv}, \texttt{icmp})
+    \item Examine packet headers and payloads
+    \item View sequence diagrams showing communication flow
+    \item Calculate statistics like throughput, packet loss, and delay
+\end{itemize}
+
+\subsubsection{Command-Line Analysis with tshark}
+
+For headless environments (WSL, Codespaces), use \texttt{tshark}:
+
+Install tshark:
+\begin{lstlisting}[language=bash]
+sudo apt install tshark
+\end{lstlisting}
+
+Count total packets:
+\begin{lstlisting}[language=bash]
+tshark -r manet-basic-0-0.pcap | wc -l
+\end{lstlisting}
+
+Filter UDP packets:
+\begin{lstlisting}[language=bash]
+tshark -r manet-basic-0-0.pcap -Y "udp"
+\end{lstlisting}
+
+Extract AODV routing packets:
+\begin{lstlisting}[language=bash]
+tshark -r manet-basic-0-0.pcap -Y "aodv"
+\end{lstlisting}
+
+Generate statistics:
+\begin{lstlisting}[language=bash]
+tshark -r manet-basic-0-0.pcap -q -z io,stat,1
+\end{lstlisting}
+
+\subsection{Log Files}
+
+If logging is enabled during simulation, console output can be redirected to a file for later analysis:
+
+\begin{lstlisting}[language=bash]
+./ns3 run manet-basic > simulation.log 2>&1
+\end{lstlisting}
+
+Log files contain timestamped events showing:
+\begin{itemize}
+    \item Route discovery messages
+    \item Packet transmission and reception
+    \item Routing table updates
+    \item Application-level events
+\end{itemize}
+
+\subsection{Performance Metrics}
+
+Key performance metrics for MANET evaluation include:
+
+\begin{itemize}
+    \item \textbf{Packet Delivery Ratio (PDR):} Percentage of successfully delivered packets
+    \item \textbf{End-to-End Delay:} Average time for packets to travel from source to destination
+    \item \textbf{Routing Overhead:} Number of control packets (RREQ, RREP, RERR) relative to data packets
+    \item \textbf{Throughput:} Amount of data successfully received per unit time
+    \item \textbf{Route Discovery Time:} Time taken to establish a route after traffic initiation
+\end{itemize}
+
+These metrics can be extracted from PCAP files or calculated using custom instrumentation in the simulation code.
+
+\subsection{Exporting Results}
+
+To analyze PCAP files on a different machine, download them from your simulation environment:
+
+\textbf{From WSL:}
+\begin{lstlisting}[language=bash]
+cp ~/ns-3/manet-basic-*.pcap /mnt/c/Users/YourUsername/Desktop/
+\end{lstlisting}
+
+\textbf{From Codespaces:}
+Use the VS Code interface to download files, or use \texttt{scp} if SSH access is configured.
+
+\subsection{Limitations in Cloud Environments}
+
+When working in headless environments (Codespaces, remote servers):
+\begin{itemize}
+    \item GUI-based visualization tools like NetAnim cannot be used
+    \item Wireshark requires X11 forwarding or VNC for remote display
+    \item Analysis must rely on command-line tools and downloaded traces
+\end{itemize}
+
+Despite these limitations, comprehensive analysis is still possible using \texttt{tshark}, Python scripts, and custom logging.
+
+\newpage
+
+\section{Common Mistakes and Troubleshooting}
+
+This section catalogs frequent errors encountered by ns-3 beginners and provides actionable solutions. Understanding these pitfalls helps accelerate the learning process and reduces frustration.
+
+\subsection{Compilation and Build Errors}
+
+\begin{longtable}{@{}p{0.25\textwidth}p{0.32\textwidth}p{0.38\textwidth}@{}}
+\toprule
+\textbf{Problem} & \textbf{Cause} & \textbf{Solution} \\ \midrule
+\endhead
+
+Undefined reference to \texttt{ns3::} & Missing module in includes & Add required \texttt{\#include} directives and ensure module is built \\ \midrule
+
+\texttt{error: 'LogComponentEnable' was not declared} & Missing \texttt{core-module.h} & Include \texttt{ns3/core-module.h} at top of file \\ \midrule
+
+\texttt{Pure virtual function called} & Incorrect object initialization & Ensure all Ptr<> objects are created with CreateObject<> or factory methods \\ \midrule
+
+Linker errors about missing symbols & Module not linked & Verify all required modules are included in header files \\ \midrule
+
+\texttt{Waf: command not found} & Outdated ns-3 version & Use \texttt{./ns3} instead of \texttt{./waf} for newer versions \\ \bottomrule
+\caption{Common compilation errors}
+\end{longtable}
+
+\subsection{Runtime Errors}
+
+\begin{longtable}{@{}p{0.25\textwidth}p{0.32\textwidth}p{0.38\textwidth}@{}}
+\toprule
+\textbf{Problem} & \textbf{Cause} & \textbf{Solution} \\ \midrule
+\endhead
+
+Nodes never communicate & Transmission range too small & Increase transmission power or reduce simulation area \\ \midrule
+
+Routing protocol not working & Internet stack installed before routing helper & Set routing helper before installing Internet stack \\ \midrule
+
+Applications don't start & Start time equals simulation stop time & Ensure app start time < stop time < simulation duration \\ \midrule
+
+Segmentation fault at runtime & Accessing uninitialized pointer & Check that all Ptr<> objects are properly created \\ \midrule
+
+No PCAP files generated & Tracing not enabled or permissions issue & Verify EnablePcapAll() call and directory write permissions \\ \midrule
+
+Simulation hangs indefinitely & Infinite loop or deadlock & Add debug print statements to identify stuck section \\ \bottomrule
+\caption{Common runtime errors}
+\end{longtable}
+
+\subsection{Conceptual Misunderstandings}
+
+\begin{longtable}{@{}p{0.25\textwidth}p{0.32\textwidth}p{0.38\textwidth}@{}}
+\toprule
+\textbf{Problem} & \textbf{Cause} & \textbf{Solution} \\ \midrule
+\endhead
+
+Poor packet delivery in MANET & Network partitioning due to mobility & Increase node density, reduce mobility speed, or use smaller area \\ \midrule
+
+High routing overhead & Frequent topology changes & Adjust mobility parameters or use proactive routing for stable scenarios \\ \midrule
+
+Unexpected packet loss & Collision or buffer overflow & Examine PCAP for MAC-layer retransmissions; adjust transmission rate \\ \midrule
+
+Different results on each run & Random number generation & Use SetSeed() and SetRun() for reproducible simulations \\ \midrule
+
+IP address conflicts & Manual address assignment error & Use Ipv4AddressHelper for automatic, conflict-free addressing \\ \bottomrule
+\caption{Conceptual issues and solutions}
+\end{longtable}
+
+\subsection{Performance Issues}
+
+\begin{longtable}{@{}p{0.25\textwidth}p{0.32\textwidth}p{0.38\textwidth}@{}}
+\toprule
+\textbf{Problem} & \textbf{Cause} & \textbf{Solution} \\ \midrule
+\endhead
+
+Extremely slow simulation & Debug build profile & Reconfigure with \texttt{--build-profile=optimized} \\ \midrule
+
+High memory usage & Too many nodes or long simulation & Reduce scale or use batch processing for multiple runs \\ \midrule
+
+Excessive PCAP file size & Tracing all nodes & Enable tracing only for specific nodes of interest \\ \midrule
+
+Build takes very long & All modules being compiled & Build only required modules using \texttt{--enable-modules} flag \\ \bottomrule
+\caption{Performance optimization tips}
+\end{longtable}
+
+\subsection{Debugging Strategies}
+
+When encountering errors, follow this systematic debugging approach:
+
+\begin{enumerate}
+    \item \textbf{Read error messages carefully:} Compiler and runtime errors often indicate exactly what's wrong
+    \item \textbf{Enable logging:} Use \texttt{NS\_LOG} to trace execution flow
+    \item \textbf{Simplify the scenario:} Reduce number of nodes, disable features to isolate the problem
+    \item \textbf{Verify assumptions:} Check that routes exist, nodes are within range, timing is correct
+    \item \textbf{Consult documentation:} ns-3 manual and API reference contain detailed explanations
+    \item \textbf{Search online:} ns-3 users mailing list archive and Stack Overflow have solutions to common issues
+    \item \textbf{Use version control:} Git allows reverting to known working states
+\end{enumerate}
+
+\subsection{Getting Help}
+
+If problems persist after attempting these solutions:
+
+\begin{itemize}
+    \item \textbf{ns-3 Users Mailing List:} \url{https://groups.google.com/g/ns-3-users}
+    \item \textbf{Official Documentation:} \url{https://www.nsnam.org/documentation/}
+    \item \textbf{Stack Overflow:} Tag questions with \texttt{ns-3}
+    \item \textbf{GitHub Issues:} Report bugs at \url{https://gitlab.com/nsnam/ns-3-dev/-/issues}
+\end{itemize}
+
+When asking for help, provide:
+\begin{itemize}
+    \item ns-3 version
+    \item Operating system and version
+    \item Complete error messages
+    \item Minimal reproducible example
+    \item Steps already attempted
+\end{itemize}
+
+\newpage
+
+\section{Conclusion}
+
+This guide has provided a comprehensive introduction to ns-3, covering installation, configuration, directory structure, and the implementation of a basic MANET simulation. By following the steps outlined in this document, students have gained the foundational knowledge necessary to begin conducting network simulation experiments.
+
+\subsection{Summary of Achievements}
+
+Upon completing this guide, students have:
+
+\begin{itemize}
+    \item Successfully installed and configured ns-3 on their chosen platform (Ubuntu, WSL, or Codespaces)
+    \item Understood the ns-3 directory structure and build system
+    \item Learned the fundamental concepts of Mobile Ad-hoc Networks
+    \item Implemented a complete MANET simulation with AODV routing
+    \item Executed the simulation and generated PCAP trace files
+    \item Gained familiarity with packet analysis and performance evaluation techniques
+    \item Identified common pitfalls and troubleshooting strategies
+\end{itemize}
+
+\subsection{Extending This Foundation}
+
+The basic MANET simulation presented here serves as a starting point for more advanced experiments. Students can extend this work in several directions:
+
+\subsubsection{Protocol Comparison}
+
+Compare different routing protocols (AODV, DSDV, OLSR, DSR) under identical conditions to evaluate:
+\begin{itemize}
+    \item Packet delivery ratio
+    \item Average end-to-end delay
+    \item Routing overhead
+    \item Route convergence time
+\end{itemize}
+
+\subsubsection{Mobility Models}
+
+Experiment with different mobility patterns:
+\begin{itemize}
+    \item Constant Position (static network)
+    \item Random Walk
+    \item Gauss-Markov
+    \item Reference Point Group Mobility (for modeling group movement)
+\end{itemize}
+
+\subsubsection{Traffic Patterns}
+
+Modify application layer to simulate realistic scenarios:
+\begin{itemize}
+    \item Multiple concurrent flows
+    \item Variable bit rate traffic
+    \item TCP-based applications
+    \item Bursty traffic patterns
+\end{itemize}
+
+\subsubsection{Network Conditions}
+
+Introduce challenging conditions to test protocol robustness:
+\begin{itemize}
+    \item Varying node density
+    \item Obstacles using building propagation models
+    \item Energy constraints and node failures
+    \item Malicious nodes (security research)
+\end{itemize}
+
+\subsubsection{Custom Metrics and Instrumentation}
+
+Enhance analysis capabilities by:
+\begin{itemize}
+    \item Implementing custom trace sources
+    \item Collecting application-level statistics
+    \item Exporting data to CSV for processing in Python/MATLAB
+    \item Visualizing results with graphs and charts
+\end{itemize}
+
+\subsection{Best Practices for Research}
+
+When using ns-3 for academic research or projects:
+
+\begin{itemize}
+    \item \textbf{Document thoroughly:} Maintain detailed notes on simulation parameters and assumptions
+    \item \textbf{Version control:} Use Git to track changes and collaborate effectively
+    \item \textbf{Reproducibility:} Set random seeds to ensure consistent results across runs
+    \item \textbf{Statistical rigor:} Run multiple simulations with different seeds and report confidence intervals
+    \item \textbf{Validation:} Verify results against analytical models or published research when possible
+    \item \textbf{Cite properly:} Reference ns-3 in publications using official citation format
+\end{itemize}
+
+\subsection{Further Resources}
+
+To deepen understanding of ns-3 and network simulation:
+
+\begin{itemize}
+    \item \textbf{ns-3 Tutorial:} Comprehensive tutorial available in the \texttt{doc/} directory
+    \item \textbf{ns-3 Manual:} Detailed documentation of all modules and APIs
+    \item \textbf{Example Programs:} Explore \texttt{examples/} directory for advanced use cases
+    \item \textbf{Research Papers:} Read papers using ns-3 to understand experiment design
+    \item \textbf{Online Courses:} Platforms like Coursera and edX offer network simulation courses
+    \item \textbf{Books:} "Introduction to Network Simulator NS2" covers foundational concepts applicable to ns-3
+\end{itemize}
+
+\subsection{Final Remarks}
+
+Network simulation is an invaluable skill for computer science students specializing in networking, wireless communications, and distributed systems. ns-3 provides a powerful, flexible platform for investigating complex network behaviors that would be difficult or impossible to study through purely theoretical approaches or physical experimentation.
+
+While the learning curve can be steep initially, persistence and systematic study yield significant dividends. The ability to model, simulate, and analyze network protocols empowers students to contribute meaningfully to research, understand real-world network deployments, and design next-generation communication systems.
+
+This guide has equipped you with the essential tools and knowledge to begin your journey with ns-3. Continue exploring, experimenting, and pushing the boundaries of what you can achieve with network simulation. The skills developed through working with ns-3 extend far beyond the simulator itself, fostering critical thinking, problem-solving abilities, and deep understanding of network protocols that will serve you throughout your career.
+
+\vspace{1cm}
+
+\noindent\textbf{Good luck with your simulations and future research endeavors!}
+
+\end{document}
